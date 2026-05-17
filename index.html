@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Museum learning Web 1.0</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questio - Bank Soal Premium</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <p>Loading Questio...</p>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Login ke Questio</h2>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="authForm">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full" id="authBtn">
+                        <span id="authBtnText">Masuk</span>
+                        <div class="loading-spinner-sm" id="authLoading"></div>
+                    </button>
+                </form>
+                <div class="modal-footer">
+                    <p id="toggleAuthText">Belum punya akun? <span id="toggleAuthBtn">Daftar</span></p>
+                    <button id="adminLogin" class="btn-secondary btn-full">Login Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Questio</span>
+                </div>
+            </div>
+            <div class="nav-search">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Cari soal...">
+                </div>
+            </div>
+            <div class="nav-actions">
+                <button class="mode-toggle" id="modeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="profile-btn" id="profileBtn">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Guest</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+        </div>
+        <div class="sidebar-menu">
+            <button class="menu-item active" data-filter="all">
+                <i class="fas fa-th-large"></i>
+                <span>Semua Soal</span>
+            </button>
+            <button class="menu-item" data-filter="Matematika">
+                <i class="fas fa-calculator"></i>
+                <span>Matematika</span>
+            </button>
+            <button class="menu-item" data-filter="Fisika">
+                <i class="fas fa-flask"></i>
+                <span>Fisika</span>
+            </button>
+            <button class="menu-item" data-filter="Kimia">
+                <i class="fas fa-vial"></i>
+                <span>Kimia</span>
+            </button>
+            <button class="menu-item" data-filter="Biologi">
+                <i class="fas fa-leaf"></i>
+                <span>Biologi</span>
+            </button>
+            <button class="menu-item" data-filter="Ekonomi">
+                <i class="fas fa-chart-line"></i>
+                <span>Ekonomi</span>
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <button class="menu-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1 id="dashboardTitle">Dashboard Soal</h1>
+            <div class="stats">
+                <div class="stat-card">
+                    <span class="stat-number" id="totalQuestions">0</span>
+                    <span class="stat-label">Total Soal</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Grid -->
+        <div class="questions-grid" id="questionsGrid">
+            <!-- Skeleton loaders akan dimuat via JS -->
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" id="addQuestionBtn">
+            <i class="fas fa-plus"></i>
+        </button>
+    </main>
+
+    <!-- Question Modal -->
+    <div id="questionModal" class="modal-overlay">
+        <div class="modal-container large">
+            <div class="modal-header">
+                <h2 id="questionTitle">Soal</h2>
+                <button class="modal-close" id="questionClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="question-content">
+                    <img id="questionImage" class="question-image" alt="Soal">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="question-meta">
+                        <span id="questionSubject"></span>
+                        <span id="questionDifficulty"></span>
+                        <span id="questionTime"></span>
+                    </div>
+                </div>
+                <div class="question-actions">
+                    <button class="btn-primary" id="startQuizBtn">
+                        <i class="fas fa-play"></i>
+                        Kerjakan
+                    </button>
+                    <button class="btn-outline" id="showAnswerBtn">
+                        <i class="fas fa-eye"></i>
+                        Lihat Jawaban
+                    </button>
+                    <button class="btn-outline" id="favoriteBtn">
+                        <i class="far fa-bookmark"></i>
+                        <span>Favorit</span>
+                    </button>
+                </div>
+                <div class="answer-section" id="answerSection" style="display: none;">
+                    <h3>Jawaban</h3>
+                    <div class="answer-content" id="answerContent"></div>
+                    <div class="discussion-section">
+                        <h4>Pembahasan</h4>
+                        <div class="discussion-content" id="discussionContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div id="addQuestionModal" class="modal-overlay">
+        <div class="modal-container large">
+            <div class="modal-header">
+                <h2>Tambah Soal Baru</h2>
+                <button class="modal-close" id="addQuestionClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="questionForm">
+                    <div class="input-group">
+                        <label>Judul Soal</label>
+                        <input type="text" id="formTitle" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Mata Pelajaran</label>
+                        <select id="formSubject" required>
+                            <option value="">Pilih Mapel</option>
+                            <option value="Matematika">Matematika</option>
+                            <option value="Fisika">Fisika</option>
+                            <option value="Kimia">Kimia</option>
+                            <option value="Biologi">Biologi</option>
+                            <option value="Ekonomi">Ekonomi</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Tingkat Kesulitan</label>
+                        <select id="formDifficulty" required>
+                            <option value="">Pilih Kesulitan</option>
+                            <option value="Mudah">Mudah</option>
+                            <option value="Sedang">Sedang</option>
+                            <option value="Sulit">Sulit</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Waktu Pengerjaan</label>
+                        <input type="number" id="formTime" placeholder="Menit" min="1" max="120" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Gambar Soal</label>
+                        <input type="file" id="formImage" accept="image/*">
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Jawaban</label>
+                        <textarea id="formAnswer" rows="3" required></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Pembahasan</label>
+                        <textarea id="formDiscussion" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">
+                        <span id="submitBtnText">Simpan Soal</span>
+                        <div class="loading-spinner-sm" id="submitLoading"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+</body>
+</body>
+</html>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
